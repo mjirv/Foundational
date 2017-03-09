@@ -43,21 +43,22 @@ for x in range(0, 16):  # Pulls max number of tweets from an account
                                                        max_id=max_id,
                                                        include_rts=False)
         status_count = len(statuses_portion)
-        max_id = statuses_portion[status_count - 1].id - 1  # get id of last tweet and bump below for next tweet set
+        if status_count == 0:
+            break
+        max_id = statuses_portion[max(0, status_count - 1)].id - 1  # get id of last tweet and bump below for next tweet set
     for status in statuses_portion:
         statuses.append(status)
 
-pi_content_items_array = map(convert_status_to_pi_content_item, statuses)
+pi_content_items_array = list(map(convert_status_to_pi_content_item, statuses))
 pi_content_items = {'contentItems': pi_content_items_array}
-
-r = requests.post(config.pi_url + '/v2/profile',
+r = requests.post(config.pi_url + '/v3/profile?consumption_preferences=true&version=2017-02-28',
                   auth=(config.pi_username, config.pi_password),
                   headers={
                       'content-type': 'application/json',
-                      'accept': 'application/json'
+                      'accept': 'application/json',
                   },
                   data=json.dumps(pi_content_items)
                   )
 
 print("Profile Request sent. Status code: %d, content-type: %s" % (r.status_code, r.headers['content-type']))
-print json.loads(r.text)
+print(json.loads(r.text))
