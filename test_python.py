@@ -1,3 +1,4 @@
+import glob
 import json
 from pprint import pprint
 
@@ -49,23 +50,19 @@ class Person(object):
     def __str__(self):
         personality = {'openness': self.openness, 'neuroticism': self.neuroticism, 'extraversion': self.extraversion, 'conscientiousness': self.conscientiousness, 'agreeableness': self.agreeableness}
         receptive_to = {'rewards': self.rewards, 'social_attention': self.social_attention, 'communal_goals': self.communal_goals, 'interpersonal_harmony': self.interpersonal_harmony, 'achievement': self.achievement, 'order': self.order, 'efficiency': self.efficiency, 'threats': self.threats, 'uncertainty': self.uncertainty, 'creativity': self.creativity, 'innovation': self.innovation, 'intellectual_stimulation': self.intellectual_stimulation}
-        return self.name + " -- \nPersonality: " + str(personality) +"\n" + "Receptive to: " + str(receptive_to)
+        return "{'" + self.name + "': \n'Personality': " + str(personality) +"\n" + "'Receptive to': " + str(receptive_to) + "}"
 
-with open('output_mjirv_2_tail.json') as data_file:
-    data = json.load(data_file)
-    pprint(data)
+for filename in glob.iglob('@*.json'):
+    with open(filename) as data_file:
+        data = json.load(data_file)
 
-    p = Payload(str(data).replace("'",'"').replace("Emotional range", "Neuroticism"))
-    print(p.personality[0])
+        p = Payload(str(data).replace("'",'"').replace("Emotional range", "Neuroticism"))
 
-
-    dictionary = {'openness' : 0.0, 'neuroticism': 0.0, 'extraversion': 0.0, 'conscientiousness': 0.0, 'agreeableness': 0.0}
-    for i in p.personality:
-        print(i['name'] + ": " + str(i['percentile']))
-        dictionary[i['name'].lower()] = i['percentile']
-    
-    test_person = Person("test", dictionary['openness'], dictionary['neuroticism'], dictionary['extraversion'], dictionary['conscientiousness'], dictionary['agreeableness'])
-    print(test_person.social_attention)
-    print(dictionary['extraversion'])
-    print(test_person)
-
+        dictionary = {'openness' : 0.0, 'neuroticism': 0.0, 'extraversion': 0.0, 'conscientiousness': 0.0, 'agreeableness': 0.0}
+        for i in p.personality:
+            dictionary[i['name'].lower()] = i['percentile']
+        
+        test_person = Person(filename[:filename.find("_")], dictionary['openness'], dictionary['neuroticism'], dictionary['extraversion'], dictionary['conscientiousness'], dictionary['agreeableness'])
+        print(test_person)
+        print("")
+        print("")
