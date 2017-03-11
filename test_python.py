@@ -62,7 +62,7 @@ for filename in glob.iglob('@*.json'):
         for i in p.personality:
             dictionary[i['name'].lower()] = i['percentile']
         
-        test_person = Person(filename[:filename.find("_")], dictionary['openness'], dictionary['neuroticism'], dictionary['extraversion'], dictionary['conscientiousness'], dictionary['agreeableness'])
+        test_person = Person(filename[:filename.find("_output")], dictionary['openness'], dictionary['neuroticism'], dictionary['extraversion'], dictionary['conscientiousness'], dictionary['agreeableness'])
         print(test_person)
         print("")
         print("")
