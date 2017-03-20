@@ -15,6 +15,14 @@ def fill_features(words):
         word_index += 1
     return (X_temp, X_e_temp)
 
+SEGMENTS = {
+    "o": ["creativity", "innovation", "intellectual stimulation"],
+    "c": ["achievement", "order", "efficiency"],
+    "a": ["communal goals", "interpersonal harmony"],
+    "n": ["threats", "uncertainty"],
+    "e": ["rewards", "social attention"]
+    }
+
 mnbs = []
 mnbs_e = []
 
@@ -31,6 +39,13 @@ tokenizer = TweetTokenizer(strip_handles=True)
 # Commented out because this is only needed the first time around
 #with open('output/prediction_service_output.csv', 'a') as outfile:
 #    outfile.write('O,C,A,N,E\n')
+with open('output/prediction_service_segments.csv', 'a') as outfile:
+    outfile.write('user,')
+    for key, seg in SEGMENTS.items():
+        outfile.write(','.join(seg))
+        if (key, seg) != list(SEGMENTS.items())[-1]:
+            outfile.write(',')
+    outfile.write('\n')
 
 with open('predict_handles.txt', 'r') as handle_file:
     # Read usernames from file
@@ -52,6 +67,27 @@ with open('predict_handles.txt', 'r') as handle_file:
         for i in range(len("ocan")):
             scores.append(str(int(mnbs[i].predict(X)[0])))
         scores.append(str(int(mnbs_e.predict(X_e)[0])))
+
+        # Turn the scores into marketing segments
+        with open('output/prediction_service_segments.csv', 'a') as outfile:
+            outfile.write(handle + ',')
+            for key, seg in SEGMENTS.items():
+                for s in seg:
+                    if key == 'e':
+                        if scores[4] == '1':
+                            outfile.write('1')
+                        else:
+                            outfile.write('0')
+                    elif scores["ocan".index(key)] == '1':
+                        outfile.write('1')
+                    else:
+                        outfile.write('0')
+                    
+                    # Don't add a comma at the end of the line
+                    if (key, seg) != list(SEGMENTS.items())[-1] or s != SEGMENTS[key][-1]:
+                        outfile.write(',')
+                        
+            outfile.write('\n')
 
         # Output to file
         with open('output/prediction_service_output.csv', 'a') as outfile:
